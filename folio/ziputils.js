@@ -11,3 +11,13 @@ export const findImageByIdx=(zip,idx)=>{//occcasionally
         }
     }
 }
+export const nextImageIndex=(totalpages,idx)=>{
+    let nextidx=idx+1;
+    if (nextidx>totalpages-1) nextidx=0;
+    return nextidx;
+}
+export const prevImageIndex=(totalpages,idx)=>{
+    let previdx=idx-1;
+    if (previdx<0) previdx=totalpages-1;
+    return previdx;
+}

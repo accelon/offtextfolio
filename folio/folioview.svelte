@@ -2,13 +2,13 @@
 import { onMount } from 'svelte';
 import Swipe from '../swipe/swipe.svelte';
 import SwipeItem from '../swipe/swipeitem.svelte';
-import { findImageByIdx } from './ziputils.js';
+import { findImageByIdx, prevImageIndex, nextImageIndex } from './ziputils.js';
 const blankimage='blank.png'
 
 let swiper=null;
 let oldDefaultIndex=1, defaultIndex=1;//set to middle image, so that user can swipe left or right
 let message='loading';
-let {thezip=null,imageIndex=$bindable(0)}=$props();
+let {thezip=null,imageIndex=$bindable(0),frame=$bindable({left:0,top:0,width:0,height:0})}=$props();
 const totalpages=thezip.files.length;
 //swiper 要打開 allow_infinite_swipe, active_item 不能從外部改。
 //永遠只有三張圖片在循環。滑鼠停止後，更新前後張的圖片。
@@ -22,14 +22,21 @@ onMount(()=>{
 })
 const setImages=(idx:number)=>{
     if (!swiper) return;
-    let previdx=idx-1;
-    if (previdx<0) previdx=totalpages-1;
-    let nextidx=idx+1;
-    if (nextidx>totalpages-1) nextidx=0;
+    
+    let previdx=prevImageIndex(totalpages,idx);
+    let nextidx=nextImageIndex(totalpages,idx);
+    
     setImage((defaultIndex+1)%3,thezip,previdx);
     setImage((defaultIndex)%3,thezip,idx);
     setImage((defaultIndex+2)%3,thezip,nextidx);
-    swiper.update()
+    swiper.update();
+    const img=document.getElementsByClassName('middleimage')[0];
+    const height=img.clientHeight||frame.height;
+    const width=img.clientWidth||frame.width||height*0.45; //some time width ==0
+    if (width!==frame.width || height!==frame.height){
+        frame.width=width;
+        frame.height=height;
+    }
 }
 
 const swipeConfig = {
@@ -126,7 +133,7 @@ const swipeChanged=(obj)=>{
 <style>
 img {height:100%}
 .swipe-holder{
-    z-index:999;
+    z-index:6;
     height: 100vh;
     
 }
