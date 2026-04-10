@@ -1,7 +1,7 @@
 <script lang="ts">
-import { onDestroy, onMount } from 'svelte';
+import {  onMount } from 'svelte';
 const blankimage=''
-let {showline=0,thezip=null,imageIndex=0}=$props();
+let {showline=0,thezip=null,imageIndex=0,frame}=$props();
 import { findImageByIdx } from './ziputils.js';
 let canvas=null;
 
@@ -20,21 +20,25 @@ const drawImage=()=>{
         const blob=new Blob([f.content]);
         img.src=URL.createObjectURL(blob.slice());
     }
-    setTimeout(()=>{  
-        const w=img.naturalWidth/5;
-        canvas.width=w;//one line
-        canvas.height=img.naturalHeight;
-        const leftpos=showline*w;
-        ctx.drawImage(img, leftpos, 0 , canvas.width, canvas.height, 0,0,canvas.width,canvas.height); 
+    canvas.width=frame.width/5;//one line
+    canvas.height=frame.height;
+    canvas.style.left='0px';
+    canvas.style.top=frame.top+'px';  
+    setTimeout(()=>{         
+
+
+        const leftpos=showline* img.naturalWidth/5;
+        ctx.drawImage(img, leftpos, 0 , img.naturalWidth/5, img.naturalHeight, 0,0,canvas.width,canvas.height); 
+        
         URL.revokeObjectURL(img.src)
     },10)
 
 }
-onMount(()=>drawImage());
+onMount(()=>setTimeout(()=>drawImage(),200));//wait for main folio frame
 $effect((imageIndex,thezip)=>drawImage());
 
 </script>
-<canvas bind:this={canvas} style="height:10%"/>
+<canvas bind:this={canvas} />
 <style>
-    canvas {width:100%;top:0px;position:relative;}
+    canvas {left:30px;top:0px;position:absolute;z-index:6}
 </style>

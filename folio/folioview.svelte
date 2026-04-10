@@ -133,9 +133,8 @@ const swipeChanged=(obj)=>{
 <style>
 img {height:100%}
 .swipe-holder{
-    z-index:6;
+    z-index:999;
     height: 100vh;
-    
 }
-.swipe {top:0%;left:0%;z-index:9999;position:absolute}
+.swipe {z-index:999;position:absolute}
 </style>
