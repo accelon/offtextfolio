@@ -1,30 +1,24 @@
 <script lang="ts">
-import { onMount } from 'svelte';
 import Swipe from '../swipe/swipe.svelte';
 import SwipeItem from '../swipe/swipeitem.svelte';
-import { findImageByIdx, prevImageIndex, nextImageIndex } from './ziputils.js';
+import {  findImageByIdx, prevImageIndex, nextImageIndex } from './ziputils.js';
 const blankimage='blank.png'
 
 let swiper=null;
 let oldDefaultIndex=1, defaultIndex=1;//set to middle image, so that user can swipe left or right
 let message='loading';
-let {thezip=null,imageIndex=$bindable(0),frame=$bindable({left:0,top:0,width:0,height:0})}=$props();
+let {thezip=null,setImageIndex,imageIndex=0,frame=$bindable({left:0,top:0,width:0,height:0})}=$props();
 const totalpages=thezip.files.length;
 //swiper 要打開 allow_infinite_swipe, active_item 不能從外部改。
 //永遠只有三張圖片在循環。滑鼠停止後，更新前後張的圖片。
-onMount(()=>{
-    let inter=setInterval(()=>{        
-        if (swiper){ //swiper visible, update the image
-            clearInterval(inter)
-            setImages(imageIndex);
-        }
-    },0);
-})
+
+$effect(()=>swiper&&setImages(imageIndex));
+
 const setImages=(idx:number)=>{
     if (!swiper) return;
     
     let previdx=prevImageIndex(totalpages,idx);
-    let nextidx=nextImageIndex(totalpages,idx);
+    let nextidx=nextImageIndex(totalpages,idx,true);
     
     setImage((defaultIndex+1)%3,thezip,previdx);
     setImage((defaultIndex)%3,thezip,idx);
@@ -33,6 +27,7 @@ const setImages=(idx:number)=>{
     const img=document.getElementsByClassName('middleimage')[0];
     const height=img.clientHeight||frame.height;
     const width=img.clientWidth||frame.width||height*0.45; //some time width ==0
+    
     if (width!==frame.width || height!==frame.height){
         frame.width=width;
         frame.height=height;
@@ -46,14 +41,14 @@ const swipeConfig = {
     transitionDuration: 250
 };
 const nextpage=()=>{
-    imageIndex++;
-    if (imageIndex>=totalpages) imageIndex=0;
-    setImages(imageIndex);
+    const nf=nextImageIndex(totalpages,imageIndex,true);
+    setImageIndex&&setImageIndex(nf)
+    setImages(nf);
 }
 const prevpage=()=>{
-    imageIndex--;
-    if (imageIndex<0) imageIndex=totalpages-1;
-    setImages(imageIndex);
+    const nf=prevImageIndex(totalpages,imageIndex,true);
+    setImageIndex&&setImageIndex(nf)
+    setImages(nf);
 }
 
 const mousewheel=(e)=>{
@@ -97,7 +92,6 @@ const swipeChanged=(obj)=>{
     const {active_item}=obj.detail;
     defaultIndex=active_item;
     let idx=imageIndex;
-    
 
     if (oldDefaultIndex==defaultIndex) {
         return;
@@ -112,14 +106,14 @@ const swipeChanged=(obj)=>{
         setImage((oldDefaultIndex+2)%3,thezip,idx-1); //change prev image
     }
     oldDefaultIndex=defaultIndex;
-    imageIndex=idx;
+    setImageIndex&&setImageIndex(idx);
     swiper.update()
 }
 
 
 </script>
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="swipe-holder"  onwheel={mousewheel} >
+<div class="swipe-holder" onwheel={mousewheel} >
 {#if thezip}
 <Swipe bind:this={swiper} {defaultIndex} {...swipeConfig}  on:change={swipeChanged}>
  <SwipeItem><img src={blankimage} alt='no content' class="leftimage swipe"/></SwipeItem>

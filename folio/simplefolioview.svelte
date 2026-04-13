@@ -10,31 +10,27 @@ const drawImage=()=>{
     const ctx=canvas?.getContext('2d');
     if (!thezip||imageIndex<0) {
         img.src=blankimage;
-        return;
-    }
-    const f=findImageByIdx(thezip,imageIndex);
-    if (!f) {
-        img.src=blankimage;
-        return;
     } else {
-        const blob=new Blob([f.content]);
-        img.src=URL.createObjectURL(blob.slice());
+        const f=findImageByIdx(thezip,imageIndex);
+        if (!f) {
+            img.src=blankimage;
+            return;
+        } else {
+            const blob=new Blob([f.content]);
+            img.src=URL.createObjectURL(blob.slice());
+        }
     }
     canvas.width=frame.width/5;//one line
     canvas.height=frame.height;
-    canvas.style.left='0px';
+    canvas.style.left='3px';
     canvas.style.top=frame.top+'px';  
     setTimeout(()=>{         
-
-
         const leftpos=showline* img.naturalWidth/5;
-        ctx.drawImage(img, leftpos, 0 , img.naturalWidth/5, img.naturalHeight, 0,0,canvas.width,canvas.height); 
-        
+        ctx.drawImage(img, leftpos, 0 , img.naturalWidth/5, img.naturalHeight, 0,0,canvas.width,canvas.height);        
         URL.revokeObjectURL(img.src)
     },10)
-
 }
-onMount(()=>setTimeout(()=>drawImage(),200));//wait for main folio frame
+onMount(()=>setTimeout(()=>drawImage(),100));//wait for main folio frame
 $effect((imageIndex,thezip)=>drawImage());
 
 </script>
