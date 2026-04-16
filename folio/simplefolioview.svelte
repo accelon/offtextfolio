@@ -6,6 +6,7 @@ import { findImageByIdx } from './ziputils.js';
 let canvas=null;
 
 const drawImage=()=>{
+    if (!frame) return;
     const img=document.createElement('IMG');
     const ctx=canvas?.getContext('2d');
     if (!thezip||imageIndex<0) {
@@ -25,8 +26,9 @@ const drawImage=()=>{
     canvas.style.left='3px';
     canvas.style.top=frame.top+'px';  
     setTimeout(()=>{         
+        if (!canvas)return;
         const leftpos=showline* img.naturalWidth/5;
-        ctx.drawImage(img, leftpos, 0 , img.naturalWidth/5, img.naturalHeight, 0,0,canvas.width,canvas.height);        
+        ctx.drawImage(img, leftpos, 0 , img.naturalWidth/5, img.naturalHeight, 0,0,canvas.width,canvas.height);
         URL.revokeObjectURL(img.src)
     },10)
 }
