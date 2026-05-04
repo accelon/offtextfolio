@@ -1,7 +1,7 @@
 <script lang="ts">
 import {  onMount } from 'svelte';
 const blankimage=''
-let {showline=0,thezip=null,imageIndex=0,frame}=$props();
+let {showline=0,thezip=null,imageIndex=0,frame,onfolioclick}=$props();
 import { findImageByIdx } from './ziputils.js';
 let canvas=null;
 
@@ -30,13 +30,14 @@ const drawImage=()=>{
         const leftpos=showline* img.naturalWidth/5;
         ctx.drawImage(img, leftpos, 0 , img.naturalWidth/5, img.naturalHeight, 0,0,canvas.width,canvas.height);
         URL.revokeObjectURL(img.src)
-    },10)
+    },50)
 }
-onMount(()=>setTimeout(()=>drawImage(),100));//wait for main folio frame
+
+onMount(()=>setTimeout(()=>drawImage(),150));//wait for main folio frame
 $effect((imageIndex,thezip)=>drawImage());
 
 </script>
-<canvas bind:this={canvas} />
+<canvas bind:this={canvas} onclick={onfolioclick}/>
 <style>
     canvas {left:30px;top:0px;position:absolute;z-index:6}
 </style>

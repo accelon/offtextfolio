@@ -29,8 +29,7 @@ const setImages=(idx:number)=>{
     const width=img.clientWidth||frame.width||height*0.45; //some time width ==0
     
     if (width!==frame.width || height!==frame.height){
-        frame.width=width;
-        frame.height=height;
+        frame={left:frame.left,top:frame.top,width,height};
     }
 }
 
@@ -109,13 +108,32 @@ const swipeChanged=(obj)=>{
     setImageIndex&&setImageIndex(idx);
     swiper.update()
 }
+const getCharXY=(x,y)=>{
+	const {left,top,width,height}=frame;
+    x-=left;
+    y-=top;	
+    const cx=5-Math.floor((x/width)*5)-1;
+    const cy=Math.floor((y/height)*17);
+    return [cx,cy];
+}
 
+const onfoliopageclick=(e)=>{
+    const {x,y}=e.detail;
+    const [cx,cy]=getCharXY(x,y);
+    const half=Math.floor(5/2);
 
+    if (cx<half) {
+        prevpage();
+    } else if (cx>half) {
+        nextpage();
+    }
+}
 </script>
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="swipe-holder" onwheel={mousewheel} >
+<div class="swipe-holder" onwheel={mousewheel}>
 {#if thezip}
-<Swipe bind:this={swiper} {defaultIndex} {...swipeConfig}  on:change={swipeChanged}>
+<Swipe on:click={onfoliopageclick}
+bind:this={swiper} {defaultIndex} {...swipeConfig}  on:change={swipeChanged}>
  <SwipeItem><img src={blankimage} alt='no content' class="leftimage swipe"/></SwipeItem>
  <SwipeItem><img src={blankimage} alt='no content' class="middleimage swipe"/></SwipeItem>
  <SwipeItem><img src={blankimage} alt='no content' class="rightimage swipe"/></SwipeItem>
